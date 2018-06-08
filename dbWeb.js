@@ -409,38 +409,32 @@ var dir='muki';
  });
 
 
- app.post("/loginVerify",function(req,res){
-                userId= req.body.userId,
-                password=req.body.password ,
-                tableName = req.body.type;
+ app.get("/loginVerify",function(req,res){
+     userId= req.query.userId,
+         password=req.query.password ,
+         tableName = req.query.tableName
+     /* in where clause if u want to use and clause then it sholud be AND only other wise it wonot work*/
+     connectionFrom.connVar.query('SELECT * from '+tableName +' where user_id = ' + connectionFrom.connVar.escape(userId)
+         + ' AND user_pass = ' + connectionFrom.connVar.escape(password) ,
+         function(err, rows, fields) {
+             if (!err){
+                 if(rows.length >0)
+                 {
+                     data="success";
+                     res.send(data);
+                 }else
+                 {
+                     data = "unsuccess";
+                     res.send(data);
+                 }
+             }
+             else{
+                 connectionFrom.connVar.end();
+                 console.log('Error while performing Query.');
+             }
+         });
+ });
 
-                        /* in where clause if u want to use and clause then it sholud be AND only other wise it wonot work*/
-        connectionFrom.connVar.query('SELECT * from '+ tableName  +' where user_id = ' + connectionFrom.connVar.escape(userId)
-            + ' AND user_pass = ' + connectionFrom.connVar.escape(password) ,
-                function(err, rows, fields) {
-                if (!err){
-                    if(rows.length >0)
-                    {
-                        rows[0].authentication="success";
-                        res.end(JSON.stringify(rows[0]));
-                        console.log("i am insdide")
-                    }else
-                    {
-                        var data = {"authentication":"fail"}; rows[0] = data ;
-                        res.end(JSON.stringify(rows[0]));
-                    }
-
-
-                    for (var i = 0; i < rows.length; i++) {
-                        console.log(rows[i].sid);
-                    };
-                }
-                else{
-                    connectionFrom.connVar.end();
-                    console.log('Error while performing Query.');
-                }
-            });
-    });
 
  app.post('/uploadProperty', function (req, res) {
      inputvalues = {
